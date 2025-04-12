@@ -1,5 +1,6 @@
 // 定义全局变量
 let theme;
+let userTokens = {};
 
 // 更新主题按钮的图标
 function updateThemeButton() {
@@ -46,23 +47,28 @@ $(document).ready(function() {
     theme = isDark ? 'dark' : 'light'
     $('html').attr('data-theme', theme)
     updateThemeButton()
-    
+
     // 设置主题变化监听
     setupThemeListener()
-    
+
     // 绑定主题切换按钮事件
     $('#theme-toggle-btn, #theme-toggle-btn-loader').on('click', toggleTheme);
     // 绑定服务器选择下拉框变化事件
-    $('#server-select').on('change', toggleCustomServer);
+    $('#server-select').on('change', toggleServerOptions);
     // 绑定确认按钮点击事件
     $('#confirm-btn').on('click', saveConfig);
-    
+    // 绑定uTools登录按钮点击事件
+    $('#utools-login-btn').on('click', handleUToolsLogin);
+
     // 如果之前有自定义服务器设置，恢复选项状态
     const savedUrl = utools.dbStorage.getItem('server-url')
     if (savedUrl && savedUrl !== 'https://blinko.kl.do') {
         $('#server-select').val('custom')
         $('#custom-server-input').val(savedUrl)
-        toggleCustomServer()
+        toggleServerOptions()
+    } else {
+        // 默认显示默认服务器选项
+        $('#default-server').addClass('show')
     }
 });
 
@@ -72,7 +78,7 @@ utools.onPluginEnter(({ code, type, payload }) => {
     if (payload === 'blinko-setting') {
         updateUIState(true)
         return
-    } 
+    }
 
     // 检查是否配置过服务器
     const serverUrl = utools.dbStorage.getItem('server-url')
@@ -87,12 +93,14 @@ utools.onPluginEnter(({ code, type, payload }) => {
     }
 })
 
-function toggleCustomServer() {
+function toggleServerOptions() {
     const select = $('#server-select').val()
     if (select === 'custom') {
         $('#custom-server').addClass('show')
+        $('#default-server').removeClass('show')
     } else {
         $('#custom-server').removeClass('show')
+        $('#default-server').addClass('show')
         $('#server-error').hide()
     }
 }
@@ -132,19 +140,48 @@ function launchBrowser(url) {
     // 显示加载状态
     updateUIState(false)
 
-    // 添加错误处理
-    utools.ubrowser
-        .goto(url)
+    // 创建浏览器实例
+    const browser = utools.ubrowser.goto(url)
         .devTools('bottom')
-        .evaluate(() => {
+        .evaluate((tokens) => {
             // 检测页面是否成功加载
             window.addEventListener('error', (e) => {
                 // 通知主进程页面加载错误
                 utools.showNotification('连接服务器失败，请检查网络或服务器地址')
             })
-            return true
-        })
-        .run({ width: 1200, height: 800 })
+            function setCookie(name, value, options = {}) {
+                const {
+                    expires,
+                    path = '/',
+                    secure = true,
+                    sameSite = 'Lax',
+                } = options;
+                let cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
+                cookieString += `; Path=${path}`;
+                if (secure) {
+                    cookieString += `; Secure`;
+                }
+                cookieString += `; SameSite=${sameSite}`;
+                if (expires) {
+                    const expiresDate = expires instanceof Date ? expires : new Date(expires);
+                    cookieString += `; Expires=${expiresDate.toUTCString()}`;
+                }
+
+                document.cookie = cookieString;
+                console.log(`Set cookie: ${cookieString}`);
+            }
+
+            // 使用传入的 tokens 参数
+            if (tokens && tokens.csrfToken && tokens.sessionToken) {
+                setCookie('__Host-next-auth.csrf-token', tokens.csrfToken);
+                setCookie('__Secure-next-auth.session-token', tokens.sessionToken);
+                console.log('已设置登录令牌');
+            }
+            return true;
+        }, userTokens)
+
+    // 运行浏览器
+    browser.run({ width: 1200, height: 800 })
         .then(() => {
             console.log('浏览器已成功启动')
             // 显示设置页
@@ -155,4 +192,98 @@ function launchBrowser(url) {
             updateUIState(true)
             utools.showNotification('启动失败，请检查网络连接或服务器地址')
         })
-} 
+}
+
+// uTools一键登录功能
+async function handleUToolsLogin() {
+    try {
+        // 显示加载状态
+        updateUIState(false)
+        $('.loading-text').text('正在登录...')
+
+        // 获取用户临时令牌
+        const { token } = await utools.fetchUserServerTemporaryToken()
+
+        // 获取用户信息
+        const userInfo = await getUserInfo(token)
+        if (!userInfo) {
+            throw new Error('获取用户信息失败')
+        }
+
+        // 调用新的登录接口
+        const loginResult = await loginWithOpenId(userInfo.open_id)
+        if (!loginResult || !loginResult.success) {
+            throw new Error(loginResult?.message || '登录失败')
+        }
+
+        // 保存登录状态
+        userTokens = {
+            csrfToken: loginResult.csrfToken,
+            sessionToken: loginResult.sessionToken
+        }
+
+        // 启动浏览器
+        launchBrowser('https://blinko.kl.do')
+
+    } catch (error) {
+        console.error('登录失败', error)
+        updateUIState(true)
+        utools.showNotification('登录失败: ' + error.message)
+    }
+}
+
+// 使用token获取用户信息
+async function getUserInfo(accessToken) {
+    try {
+        console.log('获取到的accessToken:', accessToken)
+
+        // 使用本地开发的接口获取用户信息
+        const response = await fetch(`http://localhost:8080/utools/blinko/baseinfo?access_token=${accessToken}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+
+        if (!response.ok) {
+            throw new Error(`API请求失败: ${response.status}`)
+        }
+
+        const data = await response.json()
+
+        // 检查返回的数据是否包含resource字段
+        if (data.resource) {
+            return data.resource
+        } else {
+            throw new Error('返回数据格式不正确')
+        }
+    } catch (error) {
+        console.error('获取用户信息失败', error)
+        return null
+    }
+}
+
+// 使用openId直接登录
+async function loginWithOpenId(openId) {
+    try {
+        const response = await fetch('http://localhost:8080/utools/blinko/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                openId: openId
+            })
+        })
+
+        if (!response.ok) {
+            throw new Error(`登录API请求失败: ${response.status}`)
+        }
+
+        return await response.json()
+    } catch (error) {
+        console.error('登录请求失败', error)
+        return null
+    }
+}
