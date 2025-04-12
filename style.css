@@ -1,0 +1,589 @@
+:root {
+  --bg-primary: #f5f7fa;
+  --bg-card: #fff;
+  --text-primary: #333;
+  --text-secondary: #666;
+  --text-tertiary: #555;
+  --text-label: #444;
+  --border: #eaeef5;
+  --input-bg: #f8fafd;
+  --input-focus-border: #4a86e8;
+  --input-focus-shadow: rgba(74, 134, 232, 0.15);
+  --button-gradient: linear-gradient(135deg, #4a86e8 0%, #5f93e8 50%, #6ba3ff 100%);
+  --button-hover-gradient: linear-gradient(135deg, #3b78e7 0%, #4a86e8 50%, #5f93e8 100%);
+  --button-shadow: rgba(74, 134, 232, 0.25);
+  --button-hover-shadow: rgba(74, 134, 232, 0.35);
+  --button-active-shadow: rgba(74, 134, 232, 0.2);
+  --error: #e74c3c;
+  --spinner-gradient: linear-gradient(135deg, #4a86e8 0%, #6ba3ff 50%, #83b9ff 100%);
+  --spinner-shadow: rgba(74, 134, 232, 0.4);
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  --settings-button-border: rgba(74, 134, 232, 0.2);
+  --settings-button-hover-bg: rgba(74, 134, 232, 0.1);
+  --settings-button-hover-border: rgba(74, 134, 232, 0.4);
+  --settings-button-active-bg: rgba(74, 134, 232, 0.2);
+  --transition-speed: 0.3s;
+}
+
+html[data-theme="dark"] {
+  --bg-primary: #121212;
+  --bg-card: #1e1e1e;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --text-tertiary: #b8b8b8;
+  --text-label: #d0d0d0;
+  --border: #333333;
+  --input-bg: #2a2a2a;
+  --input-focus-border: #5f93e8;
+  --input-focus-shadow: rgba(95, 147, 232, 0.25);
+  --button-gradient: linear-gradient(135deg, #3b78e7 0%, #4a86e8 50%, #5f93e8 100%);
+  --button-hover-gradient: linear-gradient(135deg, #3573e0 0%, #3b78e7 50%, #4a86e8 100%);
+  --button-shadow: rgba(59, 120, 231, 0.4);
+  --button-hover-shadow: rgba(59, 120, 231, 0.5);
+  --button-active-shadow: rgba(59, 120, 231, 0.3);
+  --error: #e55c4c;
+  --spinner-gradient: linear-gradient(135deg, #3b78e7 0%, #4a86e8 50%, #5f93e8 100%);
+  --spinner-shadow: rgba(59, 120, 231, 0.5);
+  --card-shadow: rgba(0, 0, 0, 0.4);
+  --settings-button-border: rgba(95, 147, 232, 0.4);
+  --settings-button-hover-bg: rgba(95, 147, 232, 0.15);
+  --settings-button-hover-border: rgba(95, 147, 232, 0.6);
+  --settings-button-active-bg: rgba(95, 147, 232, 0.25);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  height: 100%;
+  padding: 30px 0;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+.container {
+  text-align: center;
+  padding: 20px;
+  margin: 20px auto;
+}
+
+/* 加载样式优化 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-card);
+  padding: 50px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px var(--card-shadow);
+  animation: fadeIn 0.6s ease-out;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  overflow: hidden;
+  transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.loading-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 3px;
+  background: var(--spinner-gradient);
+  animation: loadingBar 2s ease-in-out infinite;
+}
+
+.loading-text {
+  font-size: 18px;
+  color: var(--text-tertiary);
+  margin-top: 30px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  position: relative;
+  transition: color var(--transition-speed);
+}
+
+.loading-text::after {
+  content: '...';
+  position: absolute;
+  animation: ellipsis 1.5s infinite;
+  width: 24px;
+  text-align: left;
+}
+
+.spinner {
+  width: 80px;
+  height: 80px;
+  position: relative;
+  margin-bottom: 15px;
+  transform-style: preserve-3d;
+  perspective: 800px;
+}
+
+.spinner:before,
+.spinner:after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+.spinner:before {
+  width: 100%;
+  height: 100%;
+  background-image: var(--spinner-gradient);
+  animation: spin 1.5s infinite ease-in-out;
+  box-shadow: 0 0 20px var(--spinner-shadow);
+}
+
+.spinner:after {
+  width: 70%;
+  height: 70%;
+  background-color: var(--bg-card);
+  top: 15%;
+  left: 15%;
+  animation: pulse 1.5s infinite alternate;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+  transition: background-color var(--transition-speed);
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ellipsis {
+  0% { content: '.'; }
+  33% { content: '..'; }
+  66% { content: '...'; }
+  100% { content: ''; }
+}
+
+@keyframes loadingBar {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+/* 设置页面样式 */
+.setting-container {
+  background-color: var(--bg-card);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px var(--card-shadow);
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
+  animation: fadeIn 0.6s ease-out;
+  display: none;
+  position: relative;
+  transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+/* 主题切换按钮样式 */
+.theme-toggle {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+html[data-theme="dark"] .theme-toggle {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.theme-toggle:hover {
+  transform: rotate(15deg);
+  background: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.theme-toggle:active {
+  transform: rotate(30deg);
+}
+
+.theme-toggle span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+h1 {
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: color var(--transition-speed);
+}
+
+.logo {
+  width: 70px;
+  height: 70px;
+  margin-bottom: 15px;
+  filter: drop-shadow(0 4px 8px var(--card-shadow));
+  animation: float 3s ease-in-out infinite;
+  transition: filter var(--transition-speed);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+p {
+  color: var(--text-secondary);
+  margin-bottom: 25px;
+  line-height: 1.5;
+  font-size: 15px;
+  transition: color var(--transition-speed);
+}
+
+.form-group {
+  margin-bottom: 14px;
+  text-align: left;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-label);
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  transition: color var(--transition-speed);
+}
+
+select,
+input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-size: 15px;
+  transition: all var(--transition-speed);
+  outline: none;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+}
+
+select:focus,
+input:focus {
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 4px var(--input-focus-shadow);
+  background-color: var(--bg-card);
+}
+
+.server-option {
+  margin-top: 24px;
+  display: none;
+}
+
+.show {
+  display: block;
+  animation: slideDown 0.4s ease-out;
+}
+
+button {
+  background: var(--button-gradient);
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all var(--transition-speed);
+  margin-top: 6px;
+  width: 100%;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 20px var(--button-shadow);
+}
+
+button:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: all 0.5s;
+}
+
+button:hover {
+  background: var(--button-hover-gradient);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px var(--button-hover-shadow);
+}
+
+button:hover:before {
+  left: 100%;
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: 0 5px 15px var(--button-active-shadow);
+}
+
+.error-message {
+  color: var(--error);
+  font-size: 14px;
+  margin-top: 10px;
+  display: none;
+  animation: shake 0.5s ease-in-out;
+  padding-left: 5px;
+  transition: color var(--transition-speed);
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.settings-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  color: var(--input-focus-border);
+  width: auto;
+  font-size: 14px;
+  padding: 8px 14px;
+  box-shadow: none;
+  border: 2px solid var(--settings-button-border);
+  border-radius: 8px;
+  transition: all var(--transition-speed);
+}
+
+.settings-button:hover {
+  background-color: var(--settings-button-hover-bg);
+  box-shadow: none;
+  transform: none;
+  border-color: var(--settings-button-hover-border);
+}
+
+.settings-button:active {
+  background-color: var(--settings-button-active-bg);
+}
+
+/* 按钮组样式 */
+.buttons-group {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 25px;
+  z-index: 100;
+}
+
+.icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  width: auto;
+  box-shadow: 0 4px 8px var(--card-shadow);
+  transition: all var(--transition-speed);
+  cursor: pointer;
+  flex: 1;
+  max-width: 200px;
+}
+
+.icon-button:hover {
+  background-color: var(--input-bg);
+  border-color: var(--input-focus-border);
+  box-shadow: 0 6px 12px var(--button-shadow);
+  transform: translateY(-2px);
+}
+
+.icon-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px var(--button-shadow);
+}
+
+.icon-button span {
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.icon-button span:first-child {
+  font-size: 16px;
+}
+
+/* 移动端样式适配 */
+@media (max-width: 480px) {
+  .buttons-group {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .icon-button {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-height: 700px) {
+  .setting-container, .loading-container {
+    padding: 25px 20px;
+  }
+  
+  .logo {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 10px;
+  }
+  
+  h1 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+  
+  p {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 14px;
+  }
+  
+  label {
+    margin-bottom: 8px;
+  }
+  
+  select, input {
+    padding: 12px 16px;
+  }
+}
+
+@media (max-height: 550px) {
+  .setting-container, .loading-container {
+    padding: 20px 15px;
+  }
+  
+  .logo {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 8px;
+  }
+  
+  h1 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    font-size: 13px;
+    margin-bottom: 15px;
+    line-height: 1.4;
+  }
+  
+  .form-group {
+    margin-bottom: 10px;
+  }
+  
+  label {
+    font-size: 14px;
+  }
+  
+  select, input {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 15px;
+  }
+  
+  .spinner {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .loading-text {
+    font-size: 16px;
+    margin-top: 20px;
+  }
+} 

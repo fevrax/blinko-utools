@@ -1,0 +1,19 @@
+{
+	"main": "index.html",
+	"logo": "logo.png",
+	"features": [
+		{
+			"code": "blinko",
+			"explain": "blinko 设置",
+			"cmds": [
+				"blinko",
+				"blinko-setting",
+				"blinko 闪念",
+				"闪念"
+			]
+		}
+	],
+	"pluginSetting": {
+		"single": false
+	}
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Blinko 闪念插件</title>
+		<link rel="stylesheet" href="./style.css" />
+		<script src="./jquery.min.js"></script>
+		<script src="./script.js"></script>
+	</head>
+	<body>
+		<div class="container loading-container" id="loading-container">
+			<div class="spinner"></div>
+			<p class="loading-text">正在连接</p>
+			<button id="theme-toggle-btn-loader" class="theme-toggle">
+				<span id="theme-icon-loader">☀️</span>
+			</button>
+		</div>
+
+		<div class="setting-container" id="setting-container">
+			<img src="logo.png" alt="Blinko Logo" class="logo" />
+			<button id="theme-toggle-btn" class="theme-toggle">
+				<span id="theme-icon">☀️</span>
+			</button>
+			<h1>Blinko 闪念 - 您的AI笔记</h1>
+            <p>在灵感闪现的瞬间，迅速记录下你的想法，让每一缕创意的火花都熠熠生辉</p>
+			<div class="form-group">
+				<label for="server-select">服务器选择</label>
+				<select id="server-select">
+					<option value="default">默认服务器 (https://blinko.kl.do)</option>
+					<option value="custom">自定义服务器</option>
+				</select>
+			</div>
+
+			<div id="custom-server" class="form-group server-option">
+				<label for="custom-server-input">自定义服务器地址</label>
+				<input type="text" id="custom-server-input" placeholder="请输入服务器地址，例如: https://your-server.com" />
+				<div id="server-error" class="error-message">请输入有效的服务器地址</div>
+			</div>
+
+			<button id="confirm-btn">开始使用</button>
+		</div>
+	</body>
+</html>
