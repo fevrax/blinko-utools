@@ -220,11 +220,18 @@ body {
   transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
 }
 
-/* 主题切换按钮样式 */
-.theme-toggle {
+/* 控制按钮容器 */
+.control-buttons {
   position: absolute;
   top: 15px;
   right: 15px;
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
+
+/* 图标按钮通用样式 */
+.icon-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -232,50 +239,59 @@ body {
   color: var(--text-primary);
   border: none;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   margin: 0;
-  font-size: 20px;
+  font-size: 14px;
   line-height: 1;
   cursor: pointer;
   transition: all var(--transition-speed);
-  z-index: 100;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  text-align: center;
+  position: relative;
 }
 
-html[data-theme="dark"] .theme-toggle {
+html[data-theme="dark"] .icon-button {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.theme-toggle:hover {
-  transform: rotate(15deg);
+.icon-button:hover {
   background: rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.theme-toggle:active {
-  transform: rotate(30deg);
+.icon-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.theme-toggle span {
+/* 重置按钮特定样式 */
+.reset-button span {
+  animation: none;
+  transition: transform 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.reset-button:hover span {
+  transform: rotate(180deg);
+}
+
+/* 修改主题切换按钮以适应新布局 */
+.theme-toggle {
+  position: relative;
+  top: auto;
+  right: auto;
 }
 
 h1 {
@@ -288,8 +304,8 @@ h1 {
 }
 
 .logo {
-  width: 70px;
-  height: 70px;
+  width: 90px;
+  height: 90px;
   margin-bottom: 15px;
   filter: drop-shadow(0 4px 8px var(--card-shadow));
   animation: float 3s ease-in-out infinite;
@@ -370,7 +386,7 @@ input:focus {
   padding: 12px 20px;
   width: 100%;
   border-radius: 8px;
-  color: var(--text-secondary);
+  color: white;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s;
@@ -379,7 +395,7 @@ input:focus {
 .utools-btn:hover {
   background-color: var(--input-bg);
   border-color: var(--input-focus-border);
-  color: var(--text-primary);
+  color: white;
 }
 
 .utools-logo {
@@ -490,43 +506,16 @@ button:active {
   z-index: 100;
 }
 
-.icon-button {
-  display: flex;
+.icon-button span {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-card);
-  color: var(--text-primary);
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 14px;
-  width: auto;
-  box-shadow: 0 4px 8px var(--card-shadow);
-  transition: all var(--transition-speed);
-  cursor: pointer;
-  flex: 1;
-  max-width: 200px;
-}
-
-.icon-button:hover {
-  background-color: var(--input-bg);
-  border-color: var(--input-focus-border);
-  box-shadow: 0 6px 12px var(--button-shadow);
-  transform: translateY(-2px);
-}
-
-.icon-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px var(--button-shadow);
-}
-
-.icon-button span {
-  display: inline-block;
-  margin-right: 6px;
-}
-
-.icon-button span:first-child {
-  font-size: 16px;
+  width: 100%;
+  height: 100%;
+  margin-right: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 /* 移动端样式适配 */
@@ -582,8 +571,8 @@ button:active {
   }
   
   .logo {
-    width: 50px;
-    height: 50px;
+    width: 70px;
+    height: 70px;
     margin-bottom: 8px;
   }
   
@@ -625,4 +614,25 @@ button:active {
     font-size: 16px;
     margin-top: 20px;
   }
+}
+
+.cancel-btn {
+  margin-top: 20px;
+  padding: 8px 20px;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+}
+
+html[data-theme="dark"] .cancel-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 } 

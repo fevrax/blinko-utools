@@ -1,6 +1,7 @@
 // 定义全局变量
 let theme;
 let userTokens = {};
+let defaultServerUrl = "https://blinko.kl.do"
 
 // 更新主题按钮的图标
 function updateThemeButton() {
@@ -27,14 +28,38 @@ function setupThemeListener() {
     })
 }
 
+// 重置设置
+function resetSettings() {
+    // 清空服务器URL
+    utools.dbStorage.removeItem('server-url')
+
+    // 重置界面选项
+    $('#server-select').val('default')
+    $('#custom-server-input').val('')
+    $('#server-error').hide()
+    toggleServerOptions()
+
+    // 显示提示
+    utools.showNotification('服务器设置已重置')
+}
+
 // 更新界面状态
 function updateUIState(showSetting = true) {
     if (showSetting) {
         $('#loading-container').hide()
         $('#setting-container').show()
+        // 重置取消按钮状态
+        $('#cancel-loading-btn').hide()
+        clearTimeout(window.cancelBtnTimer)
     } else {
         $('#setting-container').hide()
         $('#loading-container').css('display', 'flex')
+        $('#cancel-loading-btn').hide()
+
+        // 两秒后显示取消按钮
+        window.cancelBtnTimer = setTimeout(() => {
+            $('#cancel-loading-btn').show()
+        }, 2000)
     }
     // 确保主题显示一致
     updateThemeButton()
@@ -51,8 +76,16 @@ $(document).ready(function() {
     // 设置主题变化监听
     setupThemeListener()
 
+    // 绑定取消加载按钮事件
+    $('#cancel-loading-btn').on('click', () => {
+        updateUIState(true)
+        clearTimeout(window.cancelBtnTimer)
+    })
+
     // 绑定主题切换按钮事件
-    $('#theme-toggle-btn, #theme-toggle-btn-loader').on('click', toggleTheme);
+    $('#theme-toggle-btn').on('click', toggleTheme);
+    // 绑定重置按钮点击事件
+    $('#reset-btn').on('click', resetSettings);
     // 绑定服务器选择下拉框变化事件
     $('#server-select').on('change', toggleServerOptions);
     // 绑定确认按钮点击事件
@@ -62,7 +95,7 @@ $(document).ready(function() {
 
     // 如果之前有自定义服务器设置，恢复选项状态
     const savedUrl = utools.dbStorage.getItem('server-url')
-    if (savedUrl && savedUrl !== 'https://blinko.kl.do') {
+    if (savedUrl && savedUrl !== defaultServerUrl) {
         $('#server-select').val('custom')
         $('#custom-server-input').val(savedUrl)
         toggleServerOptions()
@@ -116,7 +149,7 @@ function isValidUrl(url) {
 
 function saveConfig() {
     const select = $('#server-select').val()
-    let serverUrl = 'https://blinko.kl.do' // 默认服务器
+    let serverUrl = defaultServerUrl // 默认服务器
 
     if (select === 'custom') {
         const customUrl = $('#custom-server-input').val().trim()
@@ -139,6 +172,7 @@ function saveConfig() {
 function launchBrowser(url) {
     // 显示加载状态
     updateUIState(false)
+    utools.clearUBrowserCache()
 
     // 创建浏览器实例
     const browser = utools.ubrowser.goto(url)
@@ -176,6 +210,7 @@ function launchBrowser(url) {
                 setCookie('__Host-next-auth.csrf-token', tokens.csrfToken);
                 setCookie('__Secure-next-auth.session-token', tokens.sessionToken);
                 console.log('已设置登录令牌');
+
             }
             return true;
         }, userTokens)
@@ -190,6 +225,7 @@ function launchBrowser(url) {
         .catch((err) => {
             console.error('浏览器启动失败', err)
             updateUIState(true)
+            clearTimeout(window.cancelBtnTimer)
             utools.showNotification('启动失败，请检查网络连接或服务器地址')
         })
 }
@@ -211,7 +247,7 @@ async function handleUToolsLogin() {
         }
 
         // 调用新的登录接口
-        const loginResult = await loginWithOpenId(userInfo.open_id)
+        const loginResult = await loginWithOpenId(userInfo.open_id, userInfo.nickname)
         if (!loginResult || !loginResult.success) {
             throw new Error(loginResult?.message || '登录失败')
         }
@@ -222,12 +258,14 @@ async function handleUToolsLogin() {
             sessionToken: loginResult.sessionToken
         }
 
+        utools.dbStorage.setItem('server-url', defaultServerUrl)
         // 启动浏览器
-        launchBrowser('https://blinko.kl.do')
+        launchBrowser(defaultServerUrl)
 
     } catch (error) {
         console.error('登录失败', error)
         updateUIState(true)
+        clearTimeout(window.cancelBtnTimer)
         utools.showNotification('登录失败: ' + error.message)
     }
 }
@@ -238,7 +276,7 @@ async function getUserInfo(accessToken) {
         console.log('获取到的accessToken:', accessToken)
 
         // 使用本地开发的接口获取用户信息
-        const response = await fetch(`http://localhost:8080/utools/blinko/baseinfo?access_token=${accessToken}`, {
+        const response = await fetch(`http://raw.kl.do:18084/utools/blinko/baseinfo?access_token=${accessToken}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -265,7 +303,7 @@ async function getUserInfo(accessToken) {
 }
 
 // 使用openId直接登录
-async function loginWithOpenId(openId) {
+async function loginWithOpenId(openId,nickname) {
     try {
         const response = await fetch('http://localhost:8080/utools/blinko/login', {
             method: 'POST',
@@ -273,7 +311,8 @@ async function loginWithOpenId(openId) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                openId: openId
+                openId: openId,
+                nickname: nickname
             })
         })
 

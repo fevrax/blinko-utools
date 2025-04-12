@@ -12,16 +12,22 @@
 		<div class="container loading-container" id="loading-container">
 			<div class="spinner"></div>
 			<p class="loading-text">正在连接</p>
-			<button id="theme-toggle-btn-loader" class="theme-toggle">
-				<span id="theme-icon-loader">☀️</span>
-			</button>
+			<button id="cancel-loading-btn" class="cancel-btn" style="display: none;">取消</button>
 		</div>
 
 		<div class="setting-container" id="setting-container">
 			<img src="logo.png" alt="Blinko Logo" class="logo" />
-			<button id="theme-toggle-btn" class="theme-toggle">
-				<span id="theme-icon">☀️</span>
-			</button>
+			<div class="control-buttons">
+				<button id="reset-btn" class="icon-button reset-button" title="重置设置">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+						<path d="M3 3v5h5"></path>
+					</svg>
+				</button>
+				<button id="theme-toggle-btn" class="theme-toggle icon-button" title="切换主题">
+					<span id="theme-icon">☀️</span>
+				</button>
+			</div>
 			<h1>Blinko 闪念 - 您的AI笔记</h1>
             <p>在灵感闪现的瞬间，迅速记录下你的想法，让每一缕创意的火花都熠熠生辉</p>
 			<div class="form-group">
@@ -34,11 +40,11 @@
 
 			<div id="default-server" class="form-group server-option">
 				<div class="utools-login">
+					<p class="login-tip">使用uTools账号一键登录，无需记忆密码</p>
 					<button id="utools-login-btn" class="utools-btn">
 						<img src="logo-utools.png" alt="uTools" class="utools-logo" />
 						使用uTools账号登录
 					</button>
-					<p class="login-tip">使用uTools账号一键登录，无需记忆密码</p>
 				</div>
 			</div>
 
