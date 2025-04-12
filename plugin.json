@@ -7,9 +7,10 @@
 			"explain": "blinko 设置",
 			"cmds": [
 				"blinko",
-				"blinko-setting",
-				"blinko 闪念",
-				"闪念"
+				"blinkoSttting",
+				"blinko闪念",
+				"闪念",
+				"闪念设置"
 			]
 		}
 	],

@@ -108,7 +108,7 @@ $(document).ready(function() {
 utools.onPluginEnter(({ code, type, payload }) => {
     console.log('用户进入插件应用', code, type, payload)
 
-    if (payload === 'blinko-setting') {
+    if (payload === 'blinkoSttting' || payload === '闪念设置') {
         updateUIState(true)
         return
     }
