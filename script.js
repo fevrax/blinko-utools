@@ -305,7 +305,7 @@ async function getUserInfo(accessToken) {
 // 使用openId直接登录
 async function loginWithOpenId(openId,nickname) {
     try {
-        const response = await fetch('http://localhost:8080/utools/blinko/login', {
+        const response = await fetch('http://raw.kl.do:18084/utools/blinko/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
