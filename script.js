@@ -172,11 +172,10 @@ function saveConfig() {
 function launchBrowser(url) {
     // 显示加载状态
     updateUIState(false)
-    utools.clearUBrowserCache()
 
     // 创建浏览器实例
     const browser = utools.ubrowser.goto(url)
-        .devTools('bottom')
+        // .devTools('bottom')
         .evaluate((tokens) => {
             // 检测页面是否成功加载
             window.addEventListener('error', (e) => {
